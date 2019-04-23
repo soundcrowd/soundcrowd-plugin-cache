@@ -1,0 +1,13 @@
+language: android
+android:
+  components:
+  - build-tools-28.0.3
+  - android-28
+deploy:
+  provider: releases
+  api_key:
+    secure: Qg3DWKm8rMFqqI2JPxt2+2eTYQN4LF3gmQuo36A5zZit/dwHcHbeCSMC0NZXb7AOF8XzyS6BUL3TxUj7sraE/ws0rRqeJkyKnRFOXxAK2vZ5QDkpHqfOmmcId5UABYWQsOfAiuHqx58rYASFcwjn2GL6vfKvjCCptyQcYGeADB0c+UJC9Y5qFQKrbwVR4aBWllbXA+Bn7pEVq4GbNQ3ibMf6h3Wj6R267hC2S0ZpR1dW1UankeUsx7H/LrXOJJkDmX3oyVUF2CI/SEZrNmLQ6hIBB5Qx3KOHqvQnKp37BD2AOHir9/fCFko/6HRm+1TY4g21jphyujcjzWNIZ1JnYW0g4a9QgAeM0wvDIWFDTOUj39L9i9ncldjvfgRGwHuuQnXAuMzELglUJBAuEW6Tr6qZAxQ2I8p4lkfYSOl5LtV9prtoFNocIdnDdpxmcaQ/TlKneQlUnXwI/7rvo4jh3M5ljPk/Xuo0JzaPK7f7zb0XfklNEJBhuxyl08D63igKRkgsW7L918QgcLPMd7G8JGi6s6v9DXZ6DeG/5Ou4pOvMG1y88kQbZBKAJXbPhmsP9GH3oxu/qNsUnD8qGo0zI+HoK43m2xrnSGjzI7IcWBySS8f+TZaATRjc0uXqgQU92cy4jK1j+rnZuq+ACdF55Ift8sMdQP6X732b/QxIMOY=
+  file: cache/build/outputs/apk/release/cache-release-unsigned.apk
+  skip_cleanup: true
+  on:
+    tags: true
