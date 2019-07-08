@@ -5,32 +5,38 @@
 package com.tiefensuche.soundcrowd.plugins.cache
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.support.v4.media.MediaMetadataCompat
+import com.tiefensuche.soundcrowd.database.MetadataDatabase
 import com.tiefensuche.soundcrowd.plugins.Callback
 import com.tiefensuche.soundcrowd.plugins.IPlugin
 import org.json.JSONArray
 import org.json.JSONObject
 
-class Plugin(private val context: Context) : IPlugin {
+class Plugin(private val appContext: Context, context: Context) : IPlugin {
 
     companion object {
         private const val name = "Cache"
     }
 
+    private val icon: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.plugin_icon)
+
     override fun name(): String = name
 
     override fun mediaCategories(): List<String> = listOf(name)
 
+    override fun preferences() = JSONArray().put(JSONObject().put("key", "cache_size")
+            .put("name", "Cache size").put("description", "Maximal cache size for the LRU cache"))
+
     @Throws(Exception::class)
     override fun getMediaItems(mediaCategory: String, callback: Callback<JSONArray>) {
         val result = JSONArray()
-        val cacheDir = Extension.getIndividualCacheDirectory(context)
+        val cacheDir = Extension.getIndividualCacheDirectory(appContext)
         if (cacheDir.exists()) {
             for (file in cacheDir.listFiles()) {
-                val obj = JSONObject()
+                val obj = MetadataDatabase.getInstance(appContext).getMediaItem(file.name.replace(".download", ""))
                 obj.put(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, file.absolutePath)
-                        .put(MediaMetadataCompat.METADATA_KEY_ARTIST, name)
-                        .put(MediaMetadataCompat.METADATA_KEY_TITLE, file.name)
                 result.put(obj)
             }
         }
@@ -48,8 +54,10 @@ class Plugin(private val context: Context) : IPlugin {
     }
 
     @Throws(Exception::class)
-    override fun getMediaUrl(url: String, callback: Callback<String>) {
+    override fun getMediaUrl(metadata: JSONObject, callback: Callback<JSONObject>) {
         // pass-though url
-        callback.onResult(url)
+        callback.onResult(metadata)
     }
+
+    override fun getIcon() = icon
 }
