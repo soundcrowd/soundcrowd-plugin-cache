@@ -1,2 +1,3 @@
-include ':cache', ':plugin'
+include ':cache', ':plugin', ':AndroidVideoCache'
 project(':plugin').projectDir = new File('plugin/plugin')
+project(':AndroidVideoCache').projectDir = new File('AndroidVideoCache/library')
