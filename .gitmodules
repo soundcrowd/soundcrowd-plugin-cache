@@ -1,3 +1,6 @@
 [submodule "plugin"]
 	path = plugin
 	url = https://github.com/soundcrowd/soundcrowd-plugin.git
+[submodule "AndroidVideoCache"]
+	path = AndroidVideoCache
+	url = https://github.com/soundcrowd/AndroidVideoCache
