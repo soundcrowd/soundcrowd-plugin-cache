@@ -30,25 +30,26 @@ class Plugin(private val appContext: Context, context: Context) : IPlugin {
             .put("name", "Cache size").put("description", "Maximal cache size for the LRU cache"))
 
     @Throws(Exception::class)
-    override fun getMediaItems(mediaCategory: String, callback: Callback<JSONArray>) {
+    override fun getMediaItems(mediaCategory: String, callback: Callback<JSONArray>, refresh: Boolean) {
         val result = JSONArray()
         val cacheDir = Extension.getIndividualCacheDirectory(appContext)
         if (cacheDir.exists()) {
             for (file in cacheDir.listFiles()) {
-                val obj = MetadataDatabase.getInstance(appContext).getMediaItem(file.name.replace(".download", ""))
-                obj.put(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, file.absolutePath)
-                result.put(obj)
+                MetadataDatabase.getInstance(appContext).getMediaItem(file.name.replace(".download", ""))?.let {
+                    it.put(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, file.absolutePath)
+                    result.put(it)
+                }
             }
         }
         callback.onResult(result)
     }
 
-    override fun getMediaItems(mediaCategory: String, path: String, callback: Callback<JSONArray>) {
+    override fun getMediaItems(mediaCategory: String, path: String, callback: Callback<JSONArray>, refresh: Boolean) {
         // empty result, browsing is not supported
         callback.onResult(JSONArray())
     }
 
-    override fun getMediaItems(mediaCategory: String, path: String, query: String, callback: Callback<JSONArray>) {
+    override fun getMediaItems(mediaCategory: String, path: String, query: String, callback: Callback<JSONArray>, refresh: Boolean) {
         // empty result, searching is not supported
         callback.onResult(JSONArray())
     }
@@ -57,6 +58,12 @@ class Plugin(private val appContext: Context, context: Context) : IPlugin {
     override fun getMediaUrl(metadata: JSONObject, callback: Callback<JSONObject>) {
         // pass-though url
         callback.onResult(metadata)
+    }
+
+    @Throws(Exception::class)
+    override fun favorite(id: String, callback: Callback<Boolean>) {
+        // not supported
+        callback.onResult(false)
     }
 
     override fun getIcon() = icon
