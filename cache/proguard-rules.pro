@@ -20,4 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class com.tiefensuche.soundcrowd.plugins.** { *; }
--optimizations !class/unboxing/enum
+-keep class com.tiefensuche.soundcrowd.extensions.UrlResolver { *; }
+-keep class androidx.preference.EditTextPreference { *; }
+-keep class android.support.v4.media.** { *; }
+-keep class kotlin.Pair
