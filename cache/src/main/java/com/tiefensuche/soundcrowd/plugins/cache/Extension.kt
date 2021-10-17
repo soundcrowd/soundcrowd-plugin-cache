@@ -5,41 +5,46 @@
 package com.tiefensuche.soundcrowd.plugins.cache
 
 import android.content.Context
+import android.media.MediaDataSource
 import android.os.Environment
 import android.os.Environment.MEDIA_MOUNTED
 import android.preference.PreferenceManager
 import android.support.v4.media.MediaMetadataCompat
 import com.danikula.videocache.HttpProxyCacheServer
 import com.tiefensuche.soundcrowd.database.MetadataDatabase
+import com.tiefensuche.soundcrowd.extensions.MediaMetadataCompatExt
 import com.tiefensuche.soundcrowd.extensions.UrlResolver
 import com.tiefensuche.soundcrowd.plugins.Callback
-import org.json.JSONObject
 import java.io.File
 
 class Extension(private val context: Context, private val pluginContext: Context) : UrlResolver {
 
     private var cache: HttpProxyCacheServer
+    private var database = MetadataDatabase(context)
 
     init {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val cacheSize = prefs.getString("cache_size", "512").toLong() * 1024 * 1024
+        val cacheSize = prefs.getString(pluginContext.getString(R.string.cache_size_key), "512").toLong() * 1024 * 1024
         cache = HttpProxyCacheServer.Builder(context)
                 .cacheDirectory(getIndividualCacheDirectory(context))
                 .maxCacheSize(cacheSize)
                 .build()
     }
 
-    override fun getMediaUrl(metadata: JSONObject, callback: Callback<JSONObject>) {
+    override fun getMediaUrl(metadata: MediaMetadataCompat, callback: Callback<Pair<MediaMetadataCompat, MediaDataSource?>>) {
 
         // local or online media
         if (!metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).startsWith("http")) {
-            callback.onResult(metadata)
+            callback.onResult(Pair(metadata, null))
             return
         }
 
-
-        MetadataDatabase.getInstance(context).addMediaItem(metadata)
-        callback.onResult(metadata.put(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, cache.getProxyUrl(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID), metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI), true)))
+        database.addMediaItem(metadata)
+        callback.onResult(Pair(MediaMetadataCompat.Builder(metadata)
+            .putString(MediaMetadataCompatExt.METADATA_KEY_DOWNLOAD_URL,
+                cache.getProxyUrl(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID),
+                    metadata.getString(MediaMetadataCompatExt.METADATA_KEY_DOWNLOAD_URL), true))
+            .build(), null))
     }
 
     companion object {

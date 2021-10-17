@@ -8,11 +8,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.support.v4.media.MediaMetadataCompat
+import androidx.preference.EditTextPreference
+import androidx.preference.Preference
 import com.tiefensuche.soundcrowd.database.MetadataDatabase
 import com.tiefensuche.soundcrowd.plugins.Callback
 import com.tiefensuche.soundcrowd.plugins.IPlugin
-import org.json.JSONArray
-import org.json.JSONObject
 
 class Plugin(private val appContext: Context, context: Context) : IPlugin {
 
@@ -20,51 +20,37 @@ class Plugin(private val appContext: Context, context: Context) : IPlugin {
         private const val name = "Cache"
     }
 
+    private var database = MetadataDatabase(appContext)
     private val icon: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.plugin_icon)
+    private val cacheSizePreference = EditTextPreference(appContext)
+
+    init {
+        cacheSizePreference.key = context.getString(R.string.cache_size_key)
+        cacheSizePreference.title = context.getString(R.string.cache_size_title)
+        cacheSizePreference.summary = context.getString(R.string.cache_size_summary)
+        cacheSizePreference.dialogTitle = context.getString(R.string.cache_size_title)
+        cacheSizePreference.dialogMessage = context.getString(R.string.cache_size_dialog_message)
+    }
 
     override fun name(): String = name
 
     override fun mediaCategories(): List<String> = listOf(name)
 
-    override fun preferences() = JSONArray().put(JSONObject().put("key", "cache_size")
-            .put("name", "Cache size").put("description", "Maximal cache size for the LRU cache"))
+    override fun preferences(): List<Preference> = listOf(cacheSizePreference)
 
     @Throws(Exception::class)
-    override fun getMediaItems(mediaCategory: String, callback: Callback<JSONArray>, refresh: Boolean) {
-        val result = JSONArray()
+    override fun getMediaItems(mediaCategory: String, callback: Callback<List<MediaMetadataCompat>>, refresh: Boolean) {
+        val result = mutableListOf<MediaMetadataCompat>()
         val cacheDir = Extension.getIndividualCacheDirectory(appContext)
         if (cacheDir.exists()) {
             for (file in cacheDir.listFiles()) {
-                MetadataDatabase.getInstance(appContext).getMediaItem(file.name.replace(".download", ""))?.let {
-                    it.put(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, file.absolutePath)
-                    result.put(it)
+                database.getMediaItem(file.name.replace(".download", ""))?.let {
+                    result.add(MediaMetadataCompat.Builder(it).putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, file.absolutePath).build())
                 }
             }
         }
         callback.onResult(result)
     }
 
-    override fun getMediaItems(mediaCategory: String, path: String, callback: Callback<JSONArray>, refresh: Boolean) {
-        // empty result, browsing is not supported
-        callback.onResult(JSONArray())
-    }
-
-    override fun getMediaItems(mediaCategory: String, path: String, query: String, callback: Callback<JSONArray>, refresh: Boolean) {
-        // empty result, searching is not supported
-        callback.onResult(JSONArray())
-    }
-
-    @Throws(Exception::class)
-    override fun getMediaUrl(metadata: JSONObject, callback: Callback<JSONObject>) {
-        // pass-though url
-        callback.onResult(metadata)
-    }
-
-    @Throws(Exception::class)
-    override fun favorite(id: String, callback: Callback<Boolean>) {
-        // not supported
-        callback.onResult(false)
-    }
-
-    override fun getIcon() = icon
+    override fun getIcon(): Bitmap = icon
 }

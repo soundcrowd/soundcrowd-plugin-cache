@@ -4,4 +4,8 @@
 
 <resources>
     <string name="app_name">soundcrowd-cache</string>
+    <string name="cache_size_key">cache_size</string>
+    <string name="cache_size_title">Cache size</string>
+    <string name="cache_size_summary">Maximal cache size for the LRU cache</string>
+    <string name="cache_size_dialog_message">Enter maximal cache size in MB</string>
 </resources>
