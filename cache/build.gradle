@@ -30,8 +30,8 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':plugin')
-    implementation project(path: ':AndroidVideoCache')
+    implementation 'com.tiefensuche.soundcrowd:plugin:0.1'
+    implementation 'com.danikula:videocache:2.7.1-1'
 }
 
 repositories {
