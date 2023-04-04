@@ -24,7 +24,7 @@ class Extension(private val context: Context, private val pluginContext: Context
 
     init {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val cacheSize = prefs.getString(pluginContext.getString(R.string.cache_size_key), "512").toLong() * 1024 * 1024
+        val cacheSize = prefs.getString(pluginContext.getString(R.string.cache_size_key), "512")!!.toLong() * 1024 * 1024
         cache = HttpProxyCacheServer.Builder(context)
                 .cacheDirectory(getIndividualCacheDirectory(context))
                 .maxCacheSize(cacheSize)
